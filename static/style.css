@@ -1,0 +1,251 @@
+:root{
+    --primary:#6C63FF;
+    --primary-dark:#4f46e5;
+
+    --dark-bg:#0f172a;
+    --dark-card:#1e293b;
+    --dark-text:#e2e8f0;
+
+    --light-bg:#f8fafc;
+    --light-card:#ffffff;
+    --light-text:#0f172a;
+}
+
+/* ===== GLOBAL ===== */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family: 'Poppins', sans-serif;
+    background: var(--dark-bg);
+    color: var(--dark-text);
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+    position:fixed;
+    width:250px;
+    height:100vh;
+    background: var(--dark-card);
+    padding-top:30px;
+    display:flex;
+    flex-direction:column;
+}
+
+.logo{
+    text-align:center;
+    font-size:22px;
+    font-weight:600;
+    margin-bottom:40px;
+    color:var(--primary);
+}
+
+.sidebar a{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:14px 25px;
+    color:var(--dark-text);
+    text-decoration:none;
+    transition:0.3s;
+}
+
+.sidebar a:hover{
+    background:rgba(108,99,255,0.15);
+    padding-left:30px;
+}
+
+.sidebar a.active{
+    background:var(--primary);
+    color:white;
+}
+
+/* ===== MAIN ===== */
+.main{
+    margin-left:250px;
+    padding:50px;
+    min-height:100vh;
+}
+
+/* ===== CARD ===== */
+.card-modern{
+    background:var(--dark-card);
+    padding:30px;
+    border-radius:16px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
+    transition:0.3s;
+}
+
+.card-modern:hover{
+    transform:translateY(-5px);
+}
+
+/* ===== BUTTON ===== */
+.btn-modern{
+    background:var(--primary);
+    border:none;
+    padding:10px 20px;
+    color:white;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.btn-modern:hover{
+    background:var(--primary-dark);
+}
+
+/* ===== INPUTS ===== */
+input,select,textarea{
+    width:100%;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #334155;
+    background:#0f172a;
+    color:white;
+}
+
+/* ======================= */
+/* ===== LIGHT MODE ===== */
+/* ======================= */
+
+.light-mode body{
+    background: var(--light-bg);
+    color: #0f172a;
+}
+
+.light-mode .sidebar{
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+}
+
+.light-mode .logo{
+    color: var(--primary);
+}
+
+.light-mode .sidebar a{
+    color: #1e293b;
+}
+
+.light-mode .sidebar a:hover{
+    background: rgba(108,99,255,0.1);
+}
+
+.light-mode .sidebar a.active{
+    background: var(--primary);
+    color: white;
+}
+.light-mode .main{
+    background: var(--light-bg);
+    color: #0f172a;
+}
+
+.light-mode .card-modern{
+    background: #ffffff !important;
+    color: #0f172a !important;
+}
+.light-mode .card-modern h1,
+.light-mode .card-modern h2,
+.light-mode .card-modern h3,
+.light-mode .card-modern p,
+.light-mode .card-modern label,
+.light-mode .card-modern span{
+    color:#0f172a !important;
+}
+
+.light-mode input,
+.light-mode textarea,
+.light-mode select{
+    background:#f9fafb;
+    color:#0f172a;
+    border:1px solid #cbd5e1;
+}
+
+.light-mode input::placeholder{
+    color: #94a3b8;
+}
+.light-mode .btn-modern{
+    background: var(--primary);
+    color: white;
+}
+
+.light-mode .btn-modern:hover{
+    background: var(--primary-dark);
+}
+.light-mode a{
+    color: var(--primary);
+}
+
+.light-mode a:hover{
+    text-decoration: underline;
+}
+.theme-toggle{
+    margin-top:auto;
+    padding:20px;
+}
+.theme-btn{
+    width:100%;
+    background:rgba(108,99,255,0.15);
+    border:1px solid var(--primary);
+    color:var(--dark-text);
+    padding:12px;
+    border-radius:10px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    font-size:14px;
+    transition:0.3s;
+}
+
+.theme-btn:hover{
+    background:var(--primary);
+    color:white;
+}
+.light-mode .theme-btn{
+    background:#f1f5f9;
+    color:#0f172a;
+    border:1px solid #c7d2fe;
+}
+
+.light-mode .theme-btn:hover{
+    background:var(--primary);
+    color:white;
+}
+/* Profile + History + Auth common */
+.profile-card,
+.history-card,
+.auth-card {
+    background: var(--dark-card);
+    color: var(--dark-text);
+}
+
+/* LIGHT MODE FIX */
+.light-mode .profile-card,
+.light-mode .history-card,
+.light-mode .auth-card {
+    background: var(--light-card) !important;
+    color: var(--light-text) !important;
+}
+
+/* History text fix */
+.light-mode .history-card pre {
+    background: #f1f5f9;
+    color: #0f172a;
+    padding: 10px;
+    border-radius: 8px;
+}
+.auth-card {
+    background: var(--dark-card);
+    color: var(--dark-text);
+}
+
+.light-mode .auth-card {
+    background: var(--light-card) !important;
+    color: var(--light-text) !important;
+}

@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block title %}History - PolyCode{% endblock %}
+
+{% block content %}
+
+<h2>💬 Conversion History</h2>
+<a href="/clear">Clear History</a>
+<br><br>
+
+{% for row in records %}
+
+<div class="card-modern history-card">
+<b>{{ row[2] }} → {{ row[3] }}</b>
+<pre>{{ row[4] }}</pre>
+<pre>{{ row[5] }}</pre>
+</div>
+
+{% endfor %}
+
+{% endblock %}

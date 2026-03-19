@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard - PolyCode{% endblock %}
+
+{% block content %}
+
+{% if logged_in %}
+
+<h2>🚀 Code Converter</h2>
+
+<form method="POST">
+
+<label>From:</label>
+<select name="source_lang">
+<option value="python">Python</option>
+<option value="java">Java</option>
+<option value="c">C</option>
+</select>
+
+<label>To:</label>
+<select name="target_lang">
+<option value="java">Java</option>
+<option value="python">Python</option>
+<option value="c">C</option>
+</select>
+
+<br><br>
+
+<textarea name="source_code" rows="7" style="width:100%;"></textarea>
+
+<br><br>
+
+<button type="submit">Convert</button>
+
+{% if output_code %}
+<br><br>
+<textarea rows="7" style="width:100%;">{{ output_code }}</textarea>
+{% endif %}
+
+</form>
+
+{% else %}
+
+<h3>Please Login to Use Converter</h3>
+<a href="/login">Login</a>
+
+{% endif %}
+
+{% endblock %}

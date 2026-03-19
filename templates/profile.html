@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+
+{% block title %}Profile - PolyCode{% endblock %}
+
+{% block content %}
+
+<style>
+.profile-container{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:80vh;
+}
+
+.profile-card{
+    width:350px;
+    text-align:center;
+    padding:40px;
+}
+
+.profile-img{
+    width:90px;
+    height:90px;
+    border-radius:50%;
+    background:linear-gradient(135deg, #6C63FF, #9333ea);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0 auto 20px;
+    font-size:30px;
+    color:white;
+}
+
+.profile-info{
+    text-align:left;
+    margin:20px 0;
+}
+
+.edit-form{
+    display:none;
+    text-align:left;
+    margin-top:20px;
+}
+</style>
+
+<div class="profile-container">
+
+    <div class="card-modern profile-card">
+
+        <div class="profile-img">
+            <i class="fas fa-user"></i>
+        </div>
+
+        <!-- VIEW MODE -->
+        <div id="viewMode">
+            <h2>{{ user[0] }}</h2>
+            <p>{{ user[1] }}</p>
+
+            <div class="profile-info">
+                <p><strong>Name:</strong> {{ user[0] }}</p>
+                <p><strong>Email:</strong> {{ user[1] }}</p>
+            </div>
+
+            <button class="btn-modern" onclick="toggleEdit()">Edit Profile</button>
+        </div>
+
+        <!-- EDIT MODE -->
+        <form method="POST" id="editForm" class="edit-form">
+
+            <label>Name</label>
+            <input type="text" name="name" value="{{ user[0] }}" required>
+
+            <label>Email</label>
+            <input type="email" name="email" value="{{ user[1] }}" required>
+
+            <br><br>
+
+            <button type="submit" class="btn-modern">Save</button>
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+function toggleEdit(){
+    document.getElementById("viewMode").style.display = "none";
+    document.getElementById("editForm").style.display = "block";
+}
+</script>
+
+{% endblock %}

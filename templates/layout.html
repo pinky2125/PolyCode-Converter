@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<title>{% block title %}PolyCode{% endblock %}</title>
+<script>
+(function() {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "light") {
+        document.documentElement.classList.add("light-mode");
+    }
+})();
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="logo">
+        <i class="fas fa-code"></i> PolyCode
+    </div>
+
+    <a href="/" class="{% if active_page == 'dashboard' %}active{% endif %}">
+        <i class="fas fa-chart-line"></i> Dashboard
+    </a>
+
+    <a href="/history" class="{% if active_page == 'history' %}active{% endif %}">
+        <i class="fas fa-history"></i> History
+    </a>
+
+    {% if session.get("user_id") %}
+    <a href="/profile" class="{% if active_page == 'profile' %}active{% endif %}">
+        <i class="fas fa-user-circle"></i> {{ session["user_name"] }}
+    </a>
+    <a href="/logout">
+        <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+    {% else %}
+    <a href="/login">
+        <i class="fas fa-sign-in-alt"></i> Login
+    </a>
+    {% endif %}
+
+    <div class="theme-toggle">
+    <button onclick="toggleTheme()" class="theme-btn">
+        <i class="fas fa-moon"></i>
+        <span>Toggle Theme</span>
+    </button>
+</div>
+</div>
+
+<div class="main">
+    {% block content %}{% endblock %}
+</div>
+
+<script>
+function toggleTheme(){
+    document.documentElement.classList.toggle("light-mode");
+
+    if(document.documentElement.classList.contains("light-mode")){
+        localStorage.setItem("theme","light");
+    } else {
+        localStorage.setItem("theme","dark");
+    }
+}
+</script>
+
+</body>
+</html>
