@@ -6,29 +6,44 @@ from engine.converter import convert_code
 import random
 import smtplib
 from email.mime.text import MIMEText
+import os
+import threading
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ✅ SINGLE APP ONLY
 app = Flask(__name__)
-app.secret_key = "supersecretkey"
+app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
 
 create_tables()
 
 
 # 📧 SEND OTP
 def send_otp(email, otp):
-    sender_email = "reshmapal5131@gmail.com"
-    sender_password = "ocfwdypezgazoktu"
+    def _send():
+        sender_email = os.getenv("SENDER_EMAIL")
+        sender_password = os.getenv("SENDER_PASSWORD")
 
-    msg = MIMEText(f"Your OTP is: {otp}")
-    msg['Subject'] = "OTP Verification"
-    msg['From'] = sender_email
-    msg['To'] = email
+        if not sender_email or not sender_password:
+            print("Missing email credentials")
+            return
 
-    server = smtplib.SMTP("smtp.gmail.com", 587)
-    server.starttls()
-    server.login(sender_email, sender_password)
-    server.send_message(msg)
-    server.quit()
+        msg = MIMEText(f"Your OTP is: {otp}")
+        msg['Subject'] = "OTP Verification"
+        msg['From'] = sender_email
+        msg['To'] = email
+
+        try:
+            server = smtplib.SMTP("smtp.gmail.com", 587)
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.send_message(msg)
+            server.quit()
+        except Exception as e:
+            print(f"Failed to send email: {e}")
+            
+    threading.Thread(target=_send).start()
 
 
 # 🏠 HOME
@@ -195,8 +210,8 @@ def add_language():
     try:
         cursor.execute("INSERT INTO languages (name) VALUES (?)", (name,))
         conn.commit()
-    except:
-        pass
+    except Exception as e:
+        flash(f"Error adding language: {e}", "error")
 
     conn.close()
     return redirect("/admin/languages")

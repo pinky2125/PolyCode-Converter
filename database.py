@@ -57,6 +57,10 @@ def create_tables():
     INSERT OR IGNORE INTO languages (name, icon, version)
     VALUES ('c', '⚙️', 'C99')
     """)
+    cursor.execute("""
+    INSERT OR IGNORE INTO languages (name, icon, version)
+    VALUES ('cpp', '🅲++', '17')
+    """)
 
     conn.commit()
     conn.close()
