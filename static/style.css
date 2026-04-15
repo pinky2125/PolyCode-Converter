@@ -249,3 +249,127 @@ input,select,textarea{
     background: var(--light-card) !important;
     color: var(--light-text) !important;
 }
+
+/* ========================================= */
+/* 🔥 EXTRA UI POLISH (ADD AT END ONLY) */
+/* ========================================= */
+
+/* ===== TABLE DESIGN ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+}
+
+th {
+    background: #020617;
+    font-weight: 600;
+}
+
+td {
+    border-bottom: 1px solid #334155;
+}
+
+/* Hover effect */
+tr:hover {
+    background: rgba(108,99,255,0.1);
+}
+
+/* ===== LIGHT MODE TABLE FIX ===== */
+.light-mode table {
+    background: white;
+    color: #0f172a;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.light-mode th {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.light-mode td {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.light-mode tr:hover {
+    background: #f1f5f9;
+}
+
+/* ===== SECTION HEADINGS ===== */
+h2 {
+    margin-bottom: 20px;
+}
+
+h3 {
+    margin-bottom: 10px;
+}
+
+/* ===== ADMIN PAGE SPACING ===== */
+.main h2 {
+    font-weight: 600;
+}
+
+/* ===== CARD IMPROVEMENT ===== */
+.card-modern {
+    transition: all 0.3s ease;
+}
+
+.card-modern:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+}
+
+/* ===== BUTTON POLISH ===== */
+.btn-modern {
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+/* ===== DELETE BUTTON (RED STYLE) ===== */
+.btn-danger {
+    background: #ef4444;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+/* ===== LIGHT MODE FIX FOR DELETE ===== */
+.light-mode .btn-danger {
+    background: #ef4444;
+    color: white;
+}
+
+/* ===== ROLE BADGES ===== */
+.role-admin {
+    background: #22c55e;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.role-user {
+    background: #64748b;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+/* LIGHT MODE FIX */
+.light-mode .role-user {
+    background: #cbd5f5;
+    color: #1e293b;
+}

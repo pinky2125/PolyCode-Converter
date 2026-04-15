@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+
+{% block title %}Manage Users{% endblock %}
+
+{% block content %}
+
+<h2>👥 Manage Users</h2>
+
+<!-- 🔥 STATS CARDS -->
+<div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:30px;">
+
+    <div class="card-modern" style="flex:1; min-width:200px;">
+        <h4>Total Users</h4>
+        <h1>{{ users|length }}</h1>
+    </div>
+
+    <div class="card-modern" style="flex:1; min-width:200px;">
+        <h4>Admins</h4>
+        <h1>
+            {{ users | selectattr(3, 'equalto', 'admin') | list | length }}
+        </h1>
+    </div>
+
+</div>
+
+<!-- 🔥 USERS TABLE -->
+<div class="card-modern">
+
+<h3>📋 Users List</h3>
+
+<table>
+
+<thead>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Email</th>
+<th>Role</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for user in users %}
+<tr>
+
+<td>{{ user[0] }}</td>
+
+<td style="font-weight:500;">
+    {{ user[1] }}
+</td>
+
+<td>{{ user[2] }}</td>
+
+<td>
+    {% if user[3] == 'admin' %}
+        <span class="role-admin">Admin</span>
+    {% else %}
+        <span class="role-user">User</span>
+    {% endif %}
+</td>
+
+<td>
+    {% if user[3] != 'admin' %}
+    <a href="/admin/delete_user/{{ user[0] }}"
+    onclick="return confirm('Delete this user?')"
+    class="btn-danger">
+        Delete
+    </a>
+    {% else %}
+        <span style="opacity:0.6; font-size:13px;">
+            Protected
+        </span>
+    {% endif %}
+</td>
+
+</tr>
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+{% endblock %}

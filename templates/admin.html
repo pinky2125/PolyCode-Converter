@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+
+<h2>👑 Admin Dashboard</h2>
+
+<!-- 🔥 STATS -->
+<div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:30px;">
+
+    <div class="card-modern" style="flex:1; min-width:200px;">
+        <h4>Total Users</h4>
+        <h1>{{ total_users }}</h1>
+    </div>
+
+    <div class="card-modern" style="flex:1; min-width:200px;">
+        <h4>Total Conversions</h4>
+        <h1>{{ total_conversions }}</h1>
+    </div>
+
+</div>
+
+<!-- 📊 CHARTS -->
+<div style="display:flex; gap:20px; flex-wrap:wrap;">
+
+    <div class="card-modern" style="flex:1; min-width:300px; height:300px;">
+        <h4 style="text-align:center;">📊 Stats</h4>
+        <canvas id="barChart"></canvas>
+    </div>
+
+    <div class="card-modern" style="flex:1; min-width:300px; height:300px;">
+        <h4 style="text-align:center;">🥧 Ratio</h4>
+        <canvas id="pieChart"></canvas>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const users = Number("{{ total_users }}");
+    const conversions = Number("{{ total_conversions }}");
+
+    new Chart(document.getElementById("barChart"), {
+        type: "bar",
+        data: {
+            labels: ["Users", "Conversions"],
+            datasets: [{
+                data: [users, conversions]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    new Chart(document.getElementById("pieChart"), {
+        type: "pie",
+        data: {
+            labels: ["Users", "Conversions"],
+            datasets: [{
+                data: [users, conversions]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+});
+</script>
+
+{% endblock %}

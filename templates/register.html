@@ -14,24 +14,43 @@
 
 <div style="margin-bottom:15px;">
 <label>Full Name</label>
-<input type="text" name="name" style="width:100%; padding:8px;">
+<input type="text" name="name" value="{{ name if name else '' }}" required>
 </div>
 
 <div style="margin-bottom:15px;">
 <label>Email</label>
-<input type="email" name="email" style="width:100%; padding:8px;">
+<input type="email" name="email" value="{{ email if email else '' }}" required>
 </div>
 
 <div style="margin-bottom:20px;">
 <label>Password</label>
-<input type="password" name="password" style="width:100%; padding:8px;">
+<input type="password" name="password" required>
 </div>
 
-<button type="submit" style="width:100%; padding:10px;">
-Create Account
+<!-- 🔥 OTP BOX SHOW ONLY AFTER SEND -->
+{% if otp_sent %}
+<div style="margin-bottom:20px;">
+<label>Enter OTP</label>
+<input type="text" name="otp" placeholder="Enter OTP" required>
+</div>
+
+<button type="submit" name="verify_otp" class="btn-modern" style="width:100%;">
+Verify & Register
 </button>
 
+{% else %}
+<button type="submit" name="send_otp" class="btn-modern" style="width:100%;">
+Send OTP
+</button>
+{% endif %}
+
 </form>
+
+{% if error %}
+<p style="color:red; margin-top:10px; text-align:center;">
+{{ error }}
+</p>
+{% endif %}
 
 <p style="margin-top:15px; text-align:center;">
 Already have account?

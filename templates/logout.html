@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block title %}Logout{% endblock %}
+
+{% block content %}
+
+<div class="card-modern auth-card" style="max-width:400px; margin:auto; margin-top:100px; text-align:center;">
+
+    <h2 style="margin-bottom:15px;">👋 Logged Out</h2>
+
+    <p style="margin-bottom:25px; opacity:0.8;">
+        You have been successfully logged out.
+    </p>
+
+    <!-- 🔥 ACTION BUTTONS -->
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+
+        <a href="/login" class="btn-modern">
+            🔐 Login Again
+        </a>
+
+        <a href="/" class="btn-modern" style="background:#64748b;">
+            🏠 Go to Home
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

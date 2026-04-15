@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+
+{% block title %}User Activity{% endblock %}
+
+{% block content %}
+
+<h2>📜 User Activity</h2>
+
+<!-- 🔥 CARD -->
+<div class="card-modern">
+
+    <!-- HEADER -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3>Recent Conversions</h3>
+
+        <input type="text" id="searchInput" placeholder="🔍 Search user..."
+        style="max-width:250px;">
+    </div>
+
+    <!-- TABLE -->
+    <table id="activityTable">
+
+        <thead>
+        <tr>
+            <th>👤 User</th>
+            <th>🔁 From</th>
+            <th>➡️ To</th>
+            <th>⏱ Time</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for h in history %}
+        <tr>
+            <td>{{ h[0] }}</td>
+            <td>{{ h[1] | capitalize }}</td>
+            <td>{{ h[2] | capitalize }}</td>
+            <td style="font-size:13px; opacity:0.7;">{{ h[3] }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+
+    </table>
+
+</div>
+
+<!-- EMPTY STATE -->
+{% if history|length == 0 %}
+<div class="card-modern" style="text-align:center; margin-top:20px;">
+    <h3>No Activity Yet 😴</h3>
+</div>
+{% endif %}
+
+<!-- 🔍 SEARCH -->
+<script>
+document.getElementById("searchInput").addEventListener("keyup", function() {
+    let filter = this.value.toLowerCase();
+    let rows = document.querySelectorAll("#activityTable tbody tr");
+
+    rows.forEach(row => {
+        let user = row.cells[0].innerText.toLowerCase();
+        row.style.display = user.includes(filter) ? "" : "none";
+    });
+});
+</script>
+
+{% endblock %}

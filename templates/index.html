@@ -6,43 +6,91 @@
 
 {% if logged_in %}
 
-<h2>🚀 Code Converter</h2>
+<h2 style="margin-bottom:20px;">🚀 Code Converter</h2>
+
+{% if session.get('role') == 'admin' %}
+<a href="/admin" class="btn-modern" style="margin-bottom:20px; display:inline-block;">
+    👑 Admin Panel
+</a>
+{% endif %}
+
+<!-- 🔥 CARD CONTAINER -->
+<div class="card-modern" style="max-width:900px;">
 
 <form method="POST">
 
-<label>From:</label>
-<select name="source_lang">
-<option value="python">Python</option>
-<option value="java">Java</option>
-<option value="c">C</option>
-</select>
+<!-- 🔥 LANGUAGE SELECT -->
+<div style="display:flex; gap:15px; flex-wrap:wrap;">
 
-<label>To:</label>
-<select name="target_lang">
-<option value="java">Java</option>
-<option value="python">Python</option>
-<option value="c">C</option>
-</select>
+    <div style="flex:1; min-width:200px;">
+        <label>From:</label>
+        <select name="source_lang">
+            {% for lang in languages %}
+            <option value="{{ lang[1] }}">
+                {{ "C++" if lang[1] == "cpp" else lang[1] | capitalize }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div style="flex:1; min-width:200px;">
+        <label>To:</label>
+        <select name="target_lang">
+            {% for lang in languages %}
+            <option value="{{ lang[1] }}">
+                {{ "C++" if lang[1] == "cpp" else lang[1] | capitalize }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+</div>
+
+<br>
+
+<!-- 🔥 INPUT CODE -->
+<label>Enter Code:</label>
+<textarea name="source_code" rows="8" placeholder="Write your code here..."></textarea>
 
 <br><br>
 
-<textarea name="source_code" rows="7" style="width:100%;"></textarea>
-
-<br><br>
-
-<button type="submit">Convert</button>
-
-{% if output_code %}
-<br><br>
-<textarea rows="7" style="width:100%;">{{ output_code }}</textarea>
-{% endif %}
+<!-- 🔥 BUTTON -->
+<button type="submit" class="btn-modern">
+    🔄 Convert Code
+</button>
 
 </form>
 
+</div>
+
+<!-- 🔥 OUTPUT -->
+{% if output_code %}
+<br>
+
+<div class="card-modern" style="max-width:900px;">
+
+    <h3 style="margin-bottom:10px;">✅ Converted Code</h3>
+
+    <textarea rows="8" readonly>
+{{ output_code }}
+    </textarea>
+
+</div>
+{% endif %}
+
 {% else %}
 
-<h3>Please Login to Use Converter</h3>
-<a href="/login">Login</a>
+<!-- 🔥 NOT LOGGED IN -->
+<div class="card-modern" style="max-width:500px; text-align:center;">
+
+    <h3>Please Login to Use Converter 🔐</h3>
+    <br>
+
+    <a href="/login" class="btn-modern">
+        Login Now
+    </a>
+
+</div>
 
 {% endif %}
 

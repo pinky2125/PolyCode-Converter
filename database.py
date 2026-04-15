@@ -9,7 +9,7 @@ def create_tables():
     conn = connect_db()
     cursor = conn.cursor()
 
-    # Users table
+    # 👤 Users table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,7 +20,7 @@ def create_tables():
         )
     ''')
 
-    # Conversion history table
+    # 🔁 Conversion history table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,6 +33,30 @@ def create_tables():
             FOREIGN KEY(user_id) REFERENCES users(id)
         )
     ''')
+
+    # 🌐 Languages table (NEW 🔥)
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS languages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE NOT NULL,
+        icon TEXT,
+        version TEXT
+    )
+''')
+
+    # ✅ Default languages insert (important)
+    cursor.execute("""
+    INSERT OR IGNORE INTO languages (name, icon, version)
+    VALUES ('python', '🐍', '3.12')
+    """)
+    cursor.execute("""
+    INSERT OR IGNORE INTO languages (name, icon, version)
+    VALUES ('java', '☕', '17')
+    """)
+    cursor.execute("""
+    INSERT OR IGNORE INTO languages (name, icon, version)
+    VALUES ('c', '⚙️', 'C99')
+    """)
 
     conn.commit()
     conn.close()
@@ -52,7 +76,6 @@ def save_history(user_id, source_lang, target_lang, source_code, converted_code)
     conn.close()
 
 
-# ✅ YE FUNCTION BILKUL LAST ME ADD KARO
 def get_history(user_id):
     conn = connect_db()
     cursor = conn.cursor()
@@ -66,3 +89,15 @@ def get_history(user_id):
     rows = cursor.fetchall()
     conn.close()
     return rows
+
+
+# 🔥 NEW FUNCTION (languages get karne ke liye)
+def get_languages():
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM languages")
+    languages = cursor.fetchall()
+
+    conn.close()
+    return languages

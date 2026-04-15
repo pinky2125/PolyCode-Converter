@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+
+{% block title %}Manage Languages{% endblock %}
+
+{% block content %}
+
+<h2>🌐 Manage Languages</h2>
+
+<!-- 🔥 ADD CARD -->
+<div class="card-modern" style="max-width:400px; margin-bottom:30px;">
+
+    <h3>➕ Add Language</h3>
+
+    <form action="/admin/add-language" method="POST" style="margin-top:15px;">
+
+        <input type="text" name="name" placeholder="Enter language name" required>
+
+        <button type="submit" class="btn-modern" style="margin-top:10px; width:100%;">
+            Add Language
+        </button>
+
+    </form>
+
+</div>
+
+<!-- 🔥 TABLE -->
+<div class="card-modern">
+
+<h3>📋 Available Languages</h3>
+
+<table>
+
+<thead>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for lang in languages %}
+<tr>
+
+<td>{{ lang[0] }}</td>
+
+<td style="font-weight:500;">
+    {{ lang[1] | capitalize }}
+</td>
+
+<td>
+    <a href="/admin/delete-language/{{ lang[0] }}"
+    onclick="return confirm('Delete this language?')"
+    class="btn-danger">
+        Delete
+    </a>
+</td>
+
+</tr>
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+{% endblock %}
