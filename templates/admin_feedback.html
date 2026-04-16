@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block title %}Admin - User Feedback{% endblock %}
+
+{% block content %}
+
+<h2>💬 User Feedback</h2>
+
+<div class="card-modern">
+
+    <table class="table-modern">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>User Name</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Rating</th>
+                <th>Message</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for feedback in feedbacks %}
+            <tr>
+                <td>{{ feedback[0] }}</td>
+                <td>{{ feedback[1] or 'Anonymous' }}</td>
+                <td>{{ feedback[2] }}</td>
+                <td>{{ feedback[3] }}</td>
+                <td>{% for i in range(feedback[4]) %}⭐{% endfor %}</td>
+                <td>{{ feedback[5] }}</td>
+                <td>{{ feedback[6] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}

@@ -2,3 +2,4 @@ Flask
 werkzeug
 selenium
 python-dotenv
+google-generativeai

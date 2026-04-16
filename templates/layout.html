@@ -21,7 +21,11 @@
 </head>
 <body>
 
-<div class="sidebar">
+<div class="hamburger" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+</div>
+
+<div class="sidebar" id="sidebar">
 
     <div class="logo">
         <i class="fas fa-code"></i> PolyCode
@@ -34,6 +38,10 @@
 
     <a href="/history" class="{% if active_page == 'history' %}active{% endif %}">
         <i class="fas fa-history"></i> History
+    </a>
+
+    <a href="/feedback" class="{% if active_page == 'feedback' %}active{% endif %}">
+        <i class="fas fa-comments"></i> Feedback
     </a>
 
     {% if session.get("user_id") %}
@@ -59,6 +67,10 @@
 
     <a href="/admin/languages">
         <i class="fas fa-code"></i> Manage Languages
+    </a>
+
+    <a href="/admin/feedback">
+        <i class="fas fa-comments"></i> User Feedback
     </a>
     {% endif %}
 
@@ -96,6 +108,31 @@ function toggleTheme(){
         localStorage.setItem("theme","dark");
     }
 }
+
+function toggleSidebar(){
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('active');
+}
+
+let lastScrollTop = 0;
+window.addEventListener('scroll', function() {
+    const sidebar = document.getElementById('sidebar');
+    const hamburger = document.querySelector('.hamburger');
+    let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    if (window.innerWidth <= 768) {
+        sidebar.classList.remove('active');
+        if (scrollTop > lastScrollTop) {
+            // Scrolling down
+            sidebar.style.transform = 'translateY(-100%)';
+            hamburger.style.transform = 'translateY(-100%)';
+        } else {
+            // Scrolling up
+            sidebar.style.transform = 'translateY(0)';
+            hamburger.style.transform = 'translateY(0)';
+        }
+    }
+    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For Mobile or negative scrolling
+});
 </script>
 
 </body>

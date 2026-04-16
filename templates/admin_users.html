@@ -63,15 +63,22 @@
 
 <td>
     {% if user[3] != 'admin' %}
+    <a href="/admin/make_admin/{{ user[0] }}"
+    onclick="return confirm('Make this user admin?')"
+    class="btn-modern" style="margin-right:10px;">
+        Make Admin
+    </a>
     <a href="/admin/delete_user/{{ user[0] }}"
     onclick="return confirm('Delete this user?')"
     class="btn-danger">
         Delete
     </a>
     {% else %}
-        <span style="opacity:0.6; font-size:13px;">
-            Protected
-        </span>
+        <a href="/admin/remove_admin/{{ user[0] }}"
+        onclick="return confirm('Remove admin privileges?')"
+        class="btn-danger">
+            Remove Admin
+        </a>
     {% endif %}
 </td>
 
