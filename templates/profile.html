@@ -53,6 +53,9 @@
 
         <!-- VIEW MODE -->
         <div id="viewMode">
+            {% if error %}
+            <div style="color: red; margin-bottom: 10px;">{{ error }}</div>
+            {% endif %}
             <h2>{{ user[0] }}</h2>
             <p>@{{ user[1] }}</p>
 
@@ -60,6 +63,12 @@
                 <p><strong>Name:</strong> {{ user[0] }}</p>
                 <p><strong>Username:</strong> {{ user[1] }}</p>
                 <p><strong>Email:</strong> {{ user[2] }}</p>
+                {% if user[3] %}
+                <p><strong>Bio:</strong> {{ user[3] }}</p>
+                {% endif %}
+                {% if user[4] %}
+                <p><strong>Phone:</strong> {{ user[4] }}</p>
+                {% endif %}
             </div>
 
             <button class="btn-modern" onclick="toggleEdit()">Edit Profile</button>
@@ -76,6 +85,12 @@
 
             <label>Email</label>
             <input type="email" name="email" value="{{ user[2] }}" required>
+
+            <label>Bio</label>
+            <textarea name="bio" rows="3">{{ user[3] if user[3] else '' }}</textarea>
+
+            <label>Phone</label>
+            <input type="text" name="phone" value="{{ user[4] if user[4] else '' }}">
 
             <br><br>
 

@@ -11,7 +11,7 @@ email_target = sys.argv[1]
 conn = connect_db()
 cursor = conn.cursor()
 
-cursor.execute("SELECT id FROM users WHERE email = ?", (email_target,))
+cursor.execute("SELECT users.id FROM users JOIN profiles ON users.id = profiles.user_id WHERE profiles.email = ?", (email_target,))
 user = cursor.fetchone()
 conn.close()
 

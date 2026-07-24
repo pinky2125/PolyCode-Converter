@@ -59,7 +59,7 @@ def analyze_code(source_code, converted_code, source_lang, target_lang):
     """
 
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-flash-latest")
         response = model.generate_content(prompt)
         text = response.text
         
@@ -74,13 +74,13 @@ def analyze_code(source_code, converted_code, source_lang, target_lang):
             solution = text.split("[SOLUTION_START]")[1].split("[SOLUTION_END]")[0].strip()
             # Clean up potential markdown formatting that model might inject anyways
             if solution.startswith("```"):
-                lines = solution.split("\\n")
+                lines = solution.split("\n")
                 if len(lines) > 1:
-                    solution = "\\n".join(lines[1:])
+                    solution = "\n".join(lines[1:])
             if solution.endswith("```"):
-                lines = solution.split("\\n")
+                lines = solution.split("\n")
                 if len(lines) > 1:
-                    solution = "\\n".join(lines[:-1])
+                    solution = "\n".join(lines[:-1])
             solution = solution.strip()
             
         return {

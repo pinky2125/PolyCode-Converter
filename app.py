@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
-from database import create_tables, save_history, get_history, connect_db, get_languages, save_solution, save_suggestion, save_feedback, get_all_feedback, is_admin, make_admin, get_users_with_admin_status
+from database import create_tables, save_history, get_history, delete_history, connect_db, get_languages, save_solution, save_suggestion, save_feedback, get_all_feedback, is_admin, make_admin, get_users_with_admin_status, get_profile, get_profile_by_username, get_profile_by_email, update_profile
 from engine.converter import convert_code
 from engine.analyzer import analyze_code
 
@@ -118,13 +118,13 @@ def admin_dashboard():
     cursor.execute("SELECT COUNT(*) FROM history")
     total_conversions = cursor.fetchone()[0]
 
-    cursor.execute("SELECT id, name, email, role FROM users")
+    cursor.execute("SELECT users.id, profiles.name, profiles.email FROM users LEFT JOIN profiles ON users.id = profiles.user_id")
     users = cursor.fetchall()
 
     cursor.execute("""
-        SELECT users.name, history.source_language, history.target_language, history.timestamp
+        SELECT profiles.name, history.source_language, history.target_language, history.timestamp
         FROM history
-        JOIN users ON history.user_id = users.id
+        JOIN profiles ON history.user_id = profiles.user_id
         ORDER BY history.id DESC
     """)
     history = cursor.fetchall()
@@ -192,11 +192,26 @@ def delete_user(user_id):
     
     conn = connect_db()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
-    conn.commit()
-    conn.close()
     
-    flash("User deleted successfully!", "success")
+    try:
+        # Cascade delete manually since SQLite schema didn't define ON DELETE CASCADE initially
+        cursor.execute("DELETE FROM solutions WHERE user_id = ?", (user_id,))
+        cursor.execute("DELETE FROM suggestions WHERE user_id = ?", (user_id,))
+        cursor.execute("DELETE FROM history WHERE user_id = ?", (user_id,))
+        cursor.execute("DELETE FROM feedback WHERE user_id = ?", (user_id,))
+        cursor.execute("DELETE FROM profiles WHERE user_id = ?", (user_id,))
+        cursor.execute("DELETE FROM admins WHERE user_id = ?", (user_id,))
+        cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        
+        conn.commit()
+        flash("User deleted successfully, along with all associated data!", "success")
+    except Exception as e:
+        conn.rollback()
+        flash(f"Error deleting user: {e}", "error")
+        print(f"Delete Error: {e}")
+    finally:
+        conn.close()
+    
     return redirect("/admin/users")
 
 
@@ -214,10 +229,10 @@ def admin_activity():
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT users.name, history.source_language, history.target_language, history.timestamp,
+        SELECT profiles.name, history.source_language, history.target_language, history.timestamp,
                solutions.content, suggestions.content
         FROM history
-        JOIN users ON history.user_id = users.id
+        JOIN profiles ON history.user_id = profiles.user_id
         LEFT JOIN solutions ON history.id = solutions.history_id
         LEFT JOIN suggestions ON history.id = suggestions.history_id
         ORDER BY history.id DESC
@@ -227,6 +242,58 @@ def admin_activity():
     conn.close()
 
     return render_template("admin_activity.html", history=history)
+
+
+# 🧾 ADMIN SOLUTIONS
+@app.route("/admin/solutions")
+def admin_solutions():
+
+    if "user_id" not in session:
+        return redirect("/login")
+
+    if session.get("role") != "admin":
+        return "Access Denied ❌"
+
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT solutions.id, profiles.name, history.source_language, history.target_language, solutions.content, solutions.timestamp
+        FROM solutions
+        JOIN history ON solutions.history_id = history.id
+        JOIN profiles ON history.user_id = profiles.user_id
+        ORDER BY solutions.id DESC
+    """)
+    solutions = cursor.fetchall()
+    conn.close()
+
+    return render_template("admin_solutions.html", solutions=solutions, active_page="admin_solutions")
+
+
+# 📝 ADMIN SUGGESTIONS
+@app.route("/admin/suggestions")
+def admin_suggestions():
+
+    if "user_id" not in session:
+        return redirect("/login")
+
+    if session.get("role") != "admin":
+        return "Access Denied ❌"
+
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT suggestions.id, profiles.name, history.source_language, history.target_language, suggestions.content, suggestions.timestamp
+        FROM suggestions
+        JOIN history ON suggestions.history_id = history.id
+        JOIN profiles ON history.user_id = profiles.user_id
+        ORDER BY suggestions.id DESC
+    """)
+    suggestions = cursor.fetchall()
+    conn.close()
+
+    return render_template("admin_suggestions.html", suggestions=suggestions, active_page="admin_suggestions")
 
 
 # 🌐 MANAGE LANGUAGES
@@ -305,6 +372,35 @@ def history():
     )
 
 
+@app.route("/history/delete/<int:history_id>")
+def history_delete(history_id):
+    if "user_id" not in session:
+        return redirect("/login")
+
+    deleted = delete_history(history_id, session["user_id"])
+    if not deleted:
+        flash("Unable to delete this history entry.", "error")
+
+    return redirect("/history")
+
+
+@app.route("/clear")
+def clear_history():
+    if "user_id" not in session:
+        return redirect("/login")
+
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM solutions WHERE history_id IN (SELECT id FROM history WHERE user_id = ?)", (session["user_id"],))
+    cursor.execute("DELETE FROM suggestions WHERE history_id IN (SELECT id FROM history WHERE user_id = ?)", (session["user_id"],))
+    cursor.execute("DELETE FROM history WHERE user_id = ?", (session["user_id"],))
+    conn.commit()
+    conn.close()
+
+    flash("All history cleared successfully.", "success")
+    return redirect("/history")
+
+
 # 📝 REGISTER WITH SAME PAGE OTP (FINAL FIXED)
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -343,30 +439,36 @@ def register():
                 cursor = conn.cursor()
 
                 try:
-                    cursor.execute("SELECT * FROM users WHERE email = ? OR username = ?", (data["email"], data["username"]))
+                    # Check if email or username already exists in users table
+                    cursor.execute("SELECT 1 FROM users WHERE email = ? OR username = ?", (data["email"], data["username"]))
                     if cursor.fetchone():
-                        if cursor.fetchone()[2] == data["email"]:
-                            return render_template("register.html", otp_sent=True, error="Email already exists ❌")
-                        else:
-                            return render_template("register.html", otp_sent=True, error="Username already exists ❌")
+                        conn.close()
+                        return render_template("register.html", otp_sent=True, error="Email or username already exists ❌")
 
-                    cursor.execute("""
-                        INSERT INTO users (name, username, email, password)
-                        VALUES (?, ?, ?, ?)
-                    """, (data["name"], data["username"], data["email"], data["password"]))
+                    # Insert into users table with all required fields
+                    cursor.execute("INSERT INTO users (name, username, email, password) VALUES (?, ?, ?, ?)", 
+                                 (data["name"], data["username"], data["email"], data["password"]))
+                    user_id = cursor.lastrowid
+                    
+                    # Insert into profiles table
+                    cursor.execute("INSERT INTO profiles (user_id, name, username, email) VALUES (?, ?, ?, ?)",
+                                 (user_id, data["name"], data["username"], data["email"]))
 
                     conn.commit()
 
                 except Exception as e:
-                    print(e)
-                    return "Database error ❌"
+                    print(f"Registration error: {e}")
+                    conn.rollback()
+                    conn.close()
+                    flash(f"Database error during registration. Please try again later.", "error")
+                    return redirect("/register")
 
                 finally:
                     conn.close()
 
                 session.pop("temp_user", None)
 
-                flash("✅ Registered Successfully!", "success")
+                flash("✅ Registered Successfully! Please login with your credentials.", "success")
                 return redirect("/login")
 
             else:
@@ -380,24 +482,35 @@ def register():
 def login():
 
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        error = None
 
-        conn = connect_db()
-        cursor = conn.cursor()
-
-        cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
-        user = cursor.fetchone()
-        conn.close()
-
-        if user and check_password_hash(user[4], password):  # password is now at index 4
-            session["user_id"] = user[0]
-            session["user_name"] = user[1]
-            session["role"] = "admin" if is_admin(user[0]) else "user"
-            return redirect("/")
+        if not username or not password:
+            error = "Username and password are required"
         else:
-            return "Invalid username or password"
+            # Get user by username (joins users and profiles tables)
+            user = get_profile_by_username(username)
 
+            if user:
+                # user[0] = user_id, user[1] = hashed_password, user[2] = name
+                try:
+                    if check_password_hash(user[1], password):
+                        session["user_id"] = user[0]
+                        session["user_name"] = user[2]
+                        session["role"] = "admin" if is_admin(user[0]) else "user"
+                        flash(f"Welcome back, {user[2]}! ✅", "success")
+                        return redirect("/")
+                    else:
+                        error = "Invalid password"
+                except Exception as e:
+                    print(f"Password hash error: {e}")
+                    error = "Authentication failed"
+            else:
+                error = "Username not found"
+        
+        return render_template("login.html", error=error)
+    
     return render_template("login.html")
 
 
@@ -407,22 +520,17 @@ def forgot_password():
     if request.method == "POST":
         email = request.form["email"]
         
-        conn = connect_db()
-        cursor = conn.cursor()
-        cursor.execute("SELECT id, name FROM users WHERE email = ?", (email,))
-        user = cursor.fetchone()
-        conn.close()
+        user = get_profile_by_email(email)
         
         if user:
+            user_id = user[0]
             # Generate reset token (simple OTP for now)
             reset_token = str(random.randint(100000, 999999))
             
-            # Store in session temporarily
             session["reset_token"] = reset_token
-            session["reset_user_id"] = user[0]
+            session["reset_user_id"] = user_id
             session["reset_email"] = email
             
-            # Send reset OTP
             msg = f"Your password reset OTP is: {reset_token}"
             try:
                 sender_email = os.getenv("SENDER_EMAIL")
@@ -448,7 +556,7 @@ def forgot_password():
                 return "Failed to send email"
         else:
             return render_template("forgot_password.html", error="Email not found")
-    
+
     return render_template("forgot_password.html", otp_sent=False)
 
 
@@ -501,32 +609,23 @@ def profile():
         name = request.form["name"]
         username = request.form["username"]
         email = request.form["email"]
+        bio = request.form.get("bio", "").strip()
+        phone = request.form.get("phone", "").strip()
 
-        # Check if username is already taken by another user
-        cursor.execute("SELECT id FROM users WHERE username = ? AND id != ?", (username, session["user_id"]))
+        # Check if username is already taken by another profile
+        cursor.execute("SELECT id FROM profiles WHERE username = ? AND user_id != ?", (username, session["user_id"]))
         if cursor.fetchone():
-            user = cursor.execute("SELECT name, username, email FROM users WHERE id = ?", (session["user_id"],)).fetchone()
+            profile = get_profile(session["user_id"])
             conn.close()
-            return render_template("profile.html", user=user, error="Username already taken", active_page="profile")
+            return render_template("profile.html", user=profile, error="Username already taken", active_page="profile")
 
-        cursor.execute("""
-            UPDATE users
-            SET name = ?, username = ?, email = ?
-            WHERE id = ?
-        """, (name, username, email, session["user_id"]))
-
-        conn.commit()
+        update_profile(session["user_id"], name, username, email, bio, phone)
         session["user_name"] = name
 
-    cursor.execute(
-        "SELECT name, username, email FROM users WHERE id = ?",
-        (session["user_id"],)
-    )
-
-    user = cursor.fetchone()
+    profile = get_profile(session["user_id"])
     conn.close()
 
-    return render_template("profile.html", user=user, active_page="profile")
+    return render_template("profile.html", user=profile, active_page="profile")
 
 
 # 💬 FEEDBACK

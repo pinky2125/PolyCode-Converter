@@ -10,6 +10,12 @@
 <i class="fas fa-user-circle"></i> Login
 </h3>
 
+{% if error %}
+<div style="color: #dc3545; background: #f8d7da; padding: 12px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #dc3545;">
+  <strong>❌ Error:</strong> {{ error }}
+</div>
+{% endif %}
+
 <form method="POST">
 
 <div style="margin-bottom:15px;">

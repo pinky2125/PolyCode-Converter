@@ -4,7 +4,7 @@ conn = sqlite3.connect('database.db')
 c = conn.cursor()
 
 # Check admins
-c.execute('SELECT users.name, users.email FROM users JOIN admins ON users.id = admins.user_id')
+c.execute('SELECT profiles.name, profiles.email FROM profiles JOIN admins ON profiles.user_id = admins.user_id')
 admins = c.fetchall()
 
 print('Current Admins:')

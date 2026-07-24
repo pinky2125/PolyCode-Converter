@@ -1,0 +1,101 @@
+{% extends "layout.html" %}
+
+{% block title %}Admin Suggestions{% endblock %}
+
+{% block content %}
+
+<h2>💡 AI Suggestions</h2>
+
+<div class="card-modern">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3>Recent Suggestions</h3>
+        <input type="text" id="suggestionSearch" placeholder="🔍 Search user or language..." style="max-width:250px;">
+    </div>
+
+    <table id="suggestionTable">
+        <thead>
+            <tr>
+                <th>👤 User</th>
+                <th>🔁 From</th>
+                <th>➡️ To</th>
+                <th>💡 Suggestion</th>
+                <th>⏱ Time</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for s in suggestions %}
+            <tr>
+                <td>{{ s[1] }}</td>
+                <td>{{ s[2] | capitalize }}</td>
+                <td>{{ s[3] | capitalize }}</td>
+                <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;"
+                    data-content="{{ s[4] | e if s[4] else 'No suggestion available.' }}"
+                    onclick="openModal('💡 AI Suggestion', this.getAttribute('data-content'))">
+                    {{ s[4] if s[4] else 'N/A' }}
+                </td>
+                <td style="font-size:13px; opacity:0.7;">{{ s[5] }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if suggestions|length == 0 %}
+<div class="card-modern" style="text-align:center; margin-top:20px;">
+    <h3>No Suggestions Available Yet 😴</h3>
+</div>
+{% endif %}
+
+<div id="contentModal" class="custom-modal" style="display: none;">
+    <div class="custom-modal-content">
+        <div class="custom-modal-header">
+            <h3 id="modalTitle" style="margin: 0; color: #4facfe;"></h3>
+            <span class="custom-modal-close" onclick="closeModal()">&times;</span>
+        </div>
+        <div class="custom-modal-body">
+            <pre><code id="modalBodyText"></code></pre>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById("suggestionSearch").addEventListener("keyup", function() {
+    let filter = this.value.toLowerCase();
+    let rows = document.querySelectorAll("#suggestionTable tbody tr");
+    rows.forEach(row => {
+        let user = row.cells[0].innerText.toLowerCase();
+        let from = row.cells[1].innerText.toLowerCase();
+        let to = row.cells[2].innerText.toLowerCase();
+        row.style.display = (user.includes(filter) || from.includes(filter) || to.includes(filter)) ? "" : "none";
+    });
+});
+
+function openModal(title, text) {
+    document.getElementById("modalTitle").innerText = title;
+    document.getElementById("modalBodyText").innerText = text;
+    document.getElementById("contentModal").style.display = "block";
+}
+
+function closeModal() {
+    document.getElementById("contentModal").style.display = "none";
+}
+
+window.onclick = function(event) {
+    let modal = document.getElementById("contentModal");
+    if (event.target == modal) {
+        closeModal();
+    }
+}
+</script>
+
+<style>
+.custom-modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.6); backdrop-filter:blur(4px); }
+.custom-modal-content { background-color:#1e1e2f; margin:8% auto; border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,0.5); width:60%; max-width:800px; color:#fff; }
+.custom-modal-header { display:flex; justify-content:space-between; align-items:center; padding:15px 25px; border-bottom:1px solid #333; }
+.custom-modal-close { color:#aaa; font-size:28px; font-weight:bold; cursor:pointer; transition:color .2s; }
+.custom-modal-close:hover { color:#fff; }
+.custom-modal-body { padding:25px; max-height:500px; overflow-y:auto; }
+.custom-modal-body pre { background:#151521; padding:15px; border-radius:8px; border:1px solid #333; white-space:pre-wrap; font-family:'Courier New', Courier, monospace; font-size:14px; color:#d4d4d4; overflow-x:auto; }
+</style>
+
+{% endblock %}

@@ -5,17 +5,65 @@
 {% block content %}
 
 <h2>💬 Conversion History</h2>
-<a href="/clear">Clear History</a>
+<a href="/clear" onclick="return confirm('Clear all history?');">Clear History</a>
 <br><br>
 
-{% for row in records %}
+{% if records and records|length > 0 %}
+    {% for row in records %}
+        <div class="card-modern history-card" id="history-card-{{ row[0] }}">
+            <div class="history-header">
+                <strong>{{ row[2] }} → {{ row[3] }}</strong>
+                <span class="history-timestamp">{{ row[6] }}</span>
+            </div>
 
-<div class="card-modern history-card">
-<b>{{ row[2] }} → {{ row[3] }}</b>
-<pre>{{ row[4] }}</pre>
-<pre>{{ row[5] }}</pre>
-</div>
+            <div class="history-actions">
+                <button type="button" class="copy-btn" data-target="source-code" onclick="copyBlock(this)">Copy Source</button>
+                <button type="button" class="copy-btn" data-target="converted-code" onclick="copyBlock(this)">Copy Converted</button>
+                <a href="/history/delete/{{ row[0] }}" class="delete-link" onclick="return confirm('Delete this history entry?');">Delete</a>
+            </div>
 
-{% endfor %}
+            <label>Source Code</label>
+            <pre class="history-code source-code">{{ row[4] }}</pre>
+
+            <label>Converted Code</label>
+            <pre class="history-code converted-code">{{ row[5] }}</pre>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No history records found yet.</p>
+{% endif %}
+
+<script>
+function copyBlock(button) {
+    const card = button.closest('.history-card');
+    if (!card) return;
+
+    const targetClass = button.dataset.target;
+    const pre = card.querySelector(`pre.${targetClass}`);
+    if (!pre) {
+        alert('Unable to find text to copy.');
+        return;
+    }
+
+    const text = pre.textContent;
+    if (!navigator.clipboard) {
+        alert('Clipboard API not supported in this browser.');
+        return;
+    }
+
+    navigator.clipboard.writeText(text).then(function() {
+        const previous = button.textContent;
+        button.textContent = 'Copied!';
+        button.disabled = true;
+        setTimeout(function() {
+            button.textContent = previous;
+            button.disabled = false;
+        }, 1500);
+    }).catch(function(error) {
+        console.error('Copy failed:', error);
+        alert('Copy failed. Please try again.');
+    });
+}
+</script>
 
 {% endblock %}

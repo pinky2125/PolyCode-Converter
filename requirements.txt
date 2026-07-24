@@ -3,3 +3,4 @@ werkzeug
 selenium
 python-dotenv
 google-generativeai
+requests
