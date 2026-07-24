@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, redirect, session, flash
+from flask import Flask, render_template, request, redirect, session, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from database import create_tables, save_history, get_history, delete_history, connect_db, get_languages, save_solution, save_suggestion, save_feedback, get_all_feedback, is_admin, make_admin, get_users_with_admin_status, get_profile, get_profile_by_username, get_profile_by_email, update_profile
 from engine.converter import convert_code
 from engine.analyzer import analyze_code
@@ -18,6 +19,9 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
 
 create_tables()
+
+
+ALLOWED_UPLOAD_EXTENSIONS = {"py", "java", "cpp", "c", "txt"}
 
 
 # 📧 SEND OTP
@@ -59,27 +63,30 @@ def home():
     if "user_id" in session:
 
         if request.method == "POST":
-            source_code = request.form["source_code"]
-            source_lang = request.form["source_lang"]
-            target_lang = request.form["target_lang"]
+            source_code = request.form.get("source_code", "").strip()
+            source_lang = request.form.get("source_lang", "").strip()
+            target_lang = request.form.get("target_lang", "").strip()
 
-            output_code = convert_code(source_code, source_lang, target_lang)
-            
-            analysis = analyze_code(source_code, output_code, source_lang, target_lang)
-            solution = analysis.get("solution", "")
-            suggestion = analysis.get("suggestion", "")
+            if not source_code or not source_lang or not target_lang:
+                flash("Please enter code and choose both languages.", "error")
+            else:
+                output_code = convert_code(source_code, source_lang, target_lang)
 
-            history_id = save_history(
-                session["user_id"],
-                source_lang,
-                target_lang,
-                source_code,
-                output_code
-            )
-            
-            if history_id:
-                save_solution(history_id, session["user_id"], solution)
-                save_suggestion(history_id, session["user_id"], suggestion)
+                analysis = analyze_code(source_code, output_code, source_lang, target_lang)
+                solution = analysis.get("solution", "")
+                suggestion = analysis.get("suggestion", "")
+
+                history_id = save_history(
+                    session["user_id"],
+                    source_lang,
+                    target_lang,
+                    source_code,
+                    output_code
+                )
+
+                if history_id:
+                    save_solution(history_id, session["user_id"], solution)
+                    save_suggestion(history_id, session["user_id"], suggestion)
 
         return render_template(
             "index.html",
@@ -97,6 +104,70 @@ def home():
         logged_in=False,
         languages=languages
     )
+
+
+@app.route("/upload", methods=["POST"])
+def upload_file():
+    if "file" not in request.files:
+        flash("No file uploaded.", "error")
+        return redirect("/")
+
+    uploaded_file = request.files["file"]
+    if uploaded_file.filename == "":
+        flash("Please choose a file.", "error")
+        return redirect("/")
+
+    filename = secure_filename(uploaded_file.filename)
+    ext = filename.rsplit(".", 1)[1].lower() if "." in filename else ""
+    if ext not in ALLOWED_UPLOAD_EXTENSIONS:
+        flash("Unsupported file type.", "error")
+        return redirect("/")
+
+    content = uploaded_file.read().decode("utf-8", errors="ignore")
+    return render_template(
+        "index.html",
+        output_code="",
+        solution="",
+        suggestion="",
+        active_page="dashboard",
+        logged_in=True,
+        languages=get_languages(),
+        uploaded_code=content,
+    )
+
+
+@app.route("/api/convert", methods=["POST"])
+def api_convert():
+    data = request.get_json(silent=True) or {}
+    source_code = data.get("source_code", "")
+    source_lang = data.get("source_lang", "")
+    target_lang = data.get("target_lang", "")
+
+    if not source_code or not source_lang or not target_lang:
+        return jsonify({"error": "source_code, source_lang and target_lang are required"}), 400
+
+    output_code = convert_code(source_code, source_lang, target_lang)
+    analysis = analyze_code(source_code, output_code, source_lang, target_lang)
+    return jsonify({
+        "output_code": output_code,
+        "suggestion": analysis.get("suggestion", ""),
+        "solution": analysis.get("solution", "")
+    })
+
+
+@app.route("/api/assistant", methods=["POST"])
+def api_assistant():
+    data = request.get_json(silent=True) or {}
+    code = data.get("code", "")
+    question = data.get("question", "")
+
+    if not code:
+        return jsonify({"answer": "Please provide code to explain."}), 400
+
+    answer = f"This code appears to be focused on: {question or 'understanding the conversion'}"
+    if code.strip():
+        answer += f"\n\nCode preview: {code[:200]}"
+    return jsonify({"answer": answer})
 
 
 # 👑 ADMIN DASHBOARD

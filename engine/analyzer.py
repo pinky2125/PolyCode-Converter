@@ -1,21 +1,24 @@
 import os
-import google.generativeai as genai
 from dotenv import load_dotenv
+
+try:
+    import google.generativeai as genai
+except Exception:  # pragma: no cover - depends on optional dependency
+    genai = None
 
 # Load environment variables
 load_dotenv()
-
-# Configure the Gemini API client
-api_key = os.getenv("GEMINI_API_KEY")
-if api_key:
-    genai.configure(api_key=api_key)
 
 def analyze_code(source_code, converted_code, source_lang, target_lang):
     """
     Analyzes the converted code to provide suggestions and a better solution using Gemini.
     If the API key is not set or an error occurs, it falls back to basic suggestions.
     """
-    if not api_key:
+    source_code = source_code or ""
+    converted_code = converted_code or ""
+    api_key = os.getenv("GEMINI_API_KEY")
+
+    if not api_key or genai is None:
         suggestion_text = f"Consider refactoring your code to use native {target_lang} structures. Managing your variables efficiently can improve memory utilization."
         
         if source_lang.lower() == "python" and target_lang.lower() == "java":

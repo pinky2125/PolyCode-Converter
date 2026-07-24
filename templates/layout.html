@@ -106,6 +106,7 @@
     {% block content %}{% endblock %}
 </div>
 
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 <script>
 function toggleTheme(){
     document.documentElement.classList.toggle("light-mode");
@@ -119,27 +120,33 @@ function toggleTheme(){
 
 function toggleSidebar(){
     const sidebar = document.getElementById('sidebar');
+    const main = document.querySelector('.main');
+    if (!sidebar) return;
+
     sidebar.classList.toggle('active');
+    if (main) {
+        main.classList.toggle('expanded');
+    }
 }
 
 let lastScrollTop = 0;
 window.addEventListener('scroll', function() {
     const sidebar = document.getElementById('sidebar');
     const hamburger = document.querySelector('.hamburger');
+    if (!sidebar || !hamburger) return;
+
     let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     if (window.innerWidth <= 768) {
         sidebar.classList.remove('active');
         if (scrollTop > lastScrollTop) {
-            // Scrolling down
             sidebar.style.transform = 'translateY(-100%)';
             hamburger.style.transform = 'translateY(-100%)';
         } else {
-            // Scrolling up
             sidebar.style.transform = 'translateY(0)';
             hamburger.style.transform = 'translateY(0)';
         }
     }
-    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For Mobile or negative scrolling
+    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
 });
 </script>
 

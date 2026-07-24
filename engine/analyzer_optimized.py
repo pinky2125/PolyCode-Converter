@@ -3,10 +3,14 @@ Optimized Code Analyzer with Better Error Handling and Caching
 """
 import os
 import logging
-import google.generativeai as genai
 from dotenv import load_dotenv
 from typing import Dict, Optional
 from functools import lru_cache
+
+try:
+    import google.generativeai as genai
+except Exception:  # pragma: no cover - depends on optional dependency
+    genai = None
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +19,7 @@ load_dotenv()
 
 # Configure the Gemini API client
 API_KEY = os.getenv("GEMINI_API_KEY")
-if API_KEY:
+if API_KEY and genai is not None:
     genai.configure(api_key=API_KEY)
 
 # Timeout for API calls (in seconds)
@@ -177,7 +181,7 @@ def analyze_code(source_code: str, converted_code: str,
     """
     
     # If no API key, return language-specific suggestions
-    if not API_KEY:
+    if not API_KEY or genai is None:
         logger.info("No GEMINI_API_KEY found, using language-specific suggestions")
         suggestion = get_language_suggestion(target_lang)
         return {

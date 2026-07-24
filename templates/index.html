@@ -4,7 +4,7 @@
 
 {% block content %}
 
-{% if logged_in %}
+{% if logged_in or uploaded_code %}
 
 <h2 style="margin-bottom:20px;">🚀 Code Converter</h2>
 
@@ -50,9 +50,21 @@
 
 <!-- 🔥 INPUT CODE -->
 <label>Enter Code:</label>
-<textarea name="source_code" rows="8" placeholder="Write your code here..."></textarea>
+<div class="editor-shell" id="uploadDropZone">
+    <div class="editor-gutter" id="editorGutter"></div>
+    <textarea name="source_code" id="sourceCodeEditor" rows="12" class="code-editor" placeholder="Write your code here...">{{ uploaded_code or '' }}</textarea>
+</div>
 
-<br><br>
+<div class="toolbar-row">
+    <label class="upload-box">
+        <input type="file" id="fileInput" accept=".py,.java,.cpp,.c,.txt">
+        <span>📁 Upload File</span>
+    </label>
+    <button type="button" class="btn-modern secondary" id="loadFileBtn">Load File</button>
+    <span class="helper-text">Drag and drop a file here or paste code directly.</span>
+</div>
+
+<br>
 
 <!-- 🔥 BUTTON -->
 <button type="submit" class="btn-modern">
@@ -71,9 +83,7 @@
 
     <h3 style="margin-bottom:10px;">✅ Converted Code</h3>
 
-    <textarea rows="8" readonly>
-{{ output_code }}
-    </textarea>
+    <textarea rows="12" readonly class="code-editor">{{ output_code }}</textarea>
 
 </div>
 
@@ -89,9 +99,17 @@
 <br>
 <div class="card-modern" style="max-width:900px; border-left: 4px solid #00BCD4;">
     <h3 style="margin-bottom:10px; color: #00BCD4;">🛠️ Optimized Solution</h3>
-    <textarea rows="8" readonly>{{ solution }}</textarea>
+    <textarea rows="12" readonly class="code-editor">{{ solution }}</textarea>
 </div>
 {% endif %}
+
+<div class="card-modern" style="max-width:900px; margin-top:20px;">
+    <h3 style="margin-bottom:10px;">🤖 Assistant</h3>
+    <p style="margin-bottom:10px;">Ask for help understanding the converted result.</p>
+    <textarea id="assistantInput" rows="3" placeholder="Explain this conversion or suggest improvements..."></textarea>
+    <button type="button" class="btn-modern" id="assistantBtn" style="margin-top:10px;">Ask Assistant</button>
+    <pre id="assistantOutput" class="assistant-output"></pre>
+</div>
 
 {% endif %}
 
